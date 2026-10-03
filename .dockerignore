@@ -1,0 +1,14 @@
+target/
+data/
+.git/
+.github/
+.idea/
+.vscode/
+*.iml
+k8s/
+docs/
+scripts/
+sql/
+sample-data/
+.env
+*.md

@@ -1,0 +1,25 @@
+# ingress-nginx defaults to a 1MB body limit and buffers bodies to disk.
+# Raise the limit to the streaming limit, stream bodies straight to the app, and allow long transfers.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: telecom-cdr-ingress
+  namespace: telecom-cdr
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "512m"
+    nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: telecom-cdr.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: telecom-cdr-service
+                port:
+                  name: http

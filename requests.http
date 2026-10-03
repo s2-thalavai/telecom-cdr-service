@@ -1,0 +1,45 @@
+### Telecom CDR API – IntelliJ HTTP Client / VS Code REST Client
+@api = http://localhost:8080/api/v1
+
+### Buffered batch (≤ 5,000 records, ≤ 10MB)
+POST {{api}}/cdrs/batch
+Content-Type: application/json
+
+< ./sample-data/batch.json
+
+### Streaming NDJSON
+POST {{api}}/cdrs/stream?source=MSC-01&batchId=SAMPLE-FEED
+Content-Type: application/x-ndjson
+
+< ./sample-data/cdrs-small.ndjson
+
+### Streaming with invalid and duplicate records (partial acceptance)
+POST {{api}}/cdrs/stream?source=MSC-02
+Content-Type: application/x-ndjson
+
+< ./sample-data/cdrs-with-errors.ndjson
+
+### Async ingestion (202 + Location)
+POST {{api}}/cdrs/async?source=MSC-03
+Content-Type: application/x-ndjson
+
+< ./sample-data/cdrs-small.ndjson
+
+### Recent ingestion jobs
+GET {{api}}/ingestion-jobs
+
+### One job (paste the id from the 202 response)
+GET {{api}}/ingestion-jobs/REPLACE-WITH-JOB-ID
+
+### Usage summary (adjust msisdn / dates to your data)
+GET {{api}}/subscribers/9000001033/usage?from=2026-09-01T00:00:00Z&to=2026-10-31T00:00:00Z
+
+### Paged CDR listing (size is capped at 500)
+GET {{api}}/cdrs?msisdn=9000001033&from=2026-09-01T00:00:00Z&to=2026-10-31T00:00:00Z&page=0&size=50
+
+### Unsupported Content-Encoding -> 415
+POST {{api}}/cdrs/stream?source=X
+Content-Type: application/x-ndjson
+Content-Encoding: br
+
+{}

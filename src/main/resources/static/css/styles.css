@@ -1,0 +1,90 @@
+/* CDR console – deep indigo/amber "network operations" palette, system fonts (offline friendly).
+   The one bold element is the signal-strength progress meter. */
+:root {
+  --paper: #f2f3f7;
+  --card: #ffffff;
+  --ink: #1c2033;
+  --muted: #5d6378;
+  --line: #d3d6e2;
+  --accent: #3a3fb8;
+  --accent-ink: #ffffff;
+  --signal: #e09b00;
+  --ok: #1f7a46;
+  --warn: #9a5b00;
+  --err: #b3261e;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+  --mono: ui-monospace, "Cascadia Code", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #12141f; --card: #1b1e2d; --ink: #e6e8f2; --muted: #a2a7bd; --line: #2e3247;
+    --accent: #8f94ff; --accent-ink: #10121c; --signal: #ffbf3c; --ok: #5cc98a; --warn: #f2b45a; --err: #ff8a80;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.5 var(--font); }
+
+.top { max-width: 72rem; margin: 0 auto; padding: 2.5rem 1.5rem .5rem; }
+.top h1 { margin: 0; font-size: 2rem; line-height: 1.2; }
+.top p { margin: .3rem 0 0; color: var(--muted); max-width: 62ch; }
+
+.layout { max-width: 72rem; margin: 0 auto; padding: 1rem 1.5rem 3rem;
+  display: grid; grid-template-columns: minmax(0, 24rem) minmax(0, 1fr); gap: 1.25rem; align-items: start; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 1.25rem 1.5rem 1.5rem; }
+.card.wide { grid-column: 1 / -1; }
+.card h2 { margin: 0 0 .75rem; font-size: 1.1rem; }
+.row-between { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
+
+label { display: block; font-weight: 600; font-size: .9rem; margin: .8rem 0 .3rem; }
+input, select { width: 100%; padding: .5rem .6rem; font: inherit; color: inherit;
+  background: var(--paper); border: 1px solid var(--line); border-radius: 4px; }
+fieldset { border: 0; padding: 0; margin: 1rem 0 0; }
+legend { font-weight: 600; font-size: .9rem; margin-bottom: .3rem; }
+.choice { display: flex; gap: .5rem; align-items: center; font-weight: 400; margin: .4rem 0; }
+.choice input { width: auto; }
+.row { display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap; }
+.row > div { flex: 1 1 10rem; }
+.muted { color: var(--muted); }
+
+button.primary { margin-top: 1rem; padding: .6rem 1.1rem; font: inherit; font-weight: 700;
+  color: var(--accent-ink); background: var(--accent); border: 0; border-radius: 4px; cursor: pointer; }
+.row button.primary { margin-top: 0; }
+button.primary:disabled { opacity: .45; cursor: not-allowed; }
+button.ghost { padding: .35rem .8rem; font: inherit; color: var(--accent); background: none;
+  border: 1px solid var(--line); border-radius: 4px; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* Signal-strength meter: stepped bars fill as the upload progresses */
+.meter { margin-top: 1rem; height: 1.25rem; border-radius: 3px; overflow: hidden;
+  background: repeating-linear-gradient(90deg, var(--line) 0 10%, transparent 10% 11%); }
+#meter-bar { height: 100%; width: 0;
+  background: repeating-linear-gradient(90deg, var(--signal) 0 10%, transparent 10% 11%);
+  transition: width .2s ease-out; }
+
+.status { min-height: 1.5rem; margin: .6rem 0 0; }
+.status.ok { color: var(--ok); } .status.warn { color: var(--warn); } .status.err { color: var(--err); }
+
+.summary { display: grid; grid-template-columns: repeat(2, 1fr); gap: .25rem 1rem; margin: .75rem 0 0; }
+.summary dt { color: var(--muted); font-size: .85rem; }
+.summary dd { margin: 0 0 .4rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.errors { margin: .5rem 0 0; padding-left: 1.2rem; font-size: .9rem; color: var(--warn); }
+
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .95rem; }
+th, td { text-align: left; padding: .5rem; border-bottom: 1px solid var(--line); }
+th { font-size: .85rem; color: var(--muted); font-weight: 600; }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+.badge { font-size: .8rem; font-weight: 700; padding: .1rem .5rem; border-radius: 999px; border: 1px solid currentColor; }
+.badge.COMPLETED { color: var(--ok); } .badge.FAILED { color: var(--err); }
+.badge.RUNNING, .badge.PENDING { color: var(--signal); }
+
+.tiles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1rem; margin-top: 1rem; }
+.tiles div { border-top: 3px solid var(--accent); padding-top: .5rem; }
+.tiles span { display: block; font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.tiles small { color: var(--muted); }
+
+@media (max-width: 860px) {
+  .layout { grid-template-columns: 1fr; }
+  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }

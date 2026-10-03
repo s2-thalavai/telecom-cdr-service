@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: telecom-cdr-service
+  namespace: telecom-cdr
+  labels:
+    app: telecom-cdr-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: telecom-cdr-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: telecom-cdr-service
+    spec:
+      terminationGracePeriodSeconds: 90      # let in-flight feeds and async jobs finish
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+      initContainers:
+        - name: wait-for-mysql
+          image: busybox:1.36
+          command: ["sh", "-c", "until nc -z mysql 3306; do echo waiting for mysql; sleep 3; done"]
+      containers:
+        - name: app
+          image: telecom-cdr-service:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+          envFrom:
+            - configMapRef:
+                name: telecom-cdr-config
+            - secretRef:
+                name: telecom-cdr-db
+          startupProbe:
+            httpGet: { path: /actuator/health/liveness, port: http }
+            periodSeconds: 5
+            failureThreshold: 30
+          livenessProbe:
+            httpGet: { path: /actuator/health/liveness, port: http }
+            periodSeconds: 15
+          readinessProbe:
+            httpGet: { path: /actuator/health/readiness, port: http }
+            periodSeconds: 10
+          resources:
+            requests: { cpu: 500m, memory: 768Mi }
+            limits: { memory: 1Gi }        # flat memory: payload size does not drive heap usage
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: spool
+              mountPath: /app/data/spool
+            - name: tmp
+              mountPath: /app/tmp
+      volumes:
+        # Per-pod spool: an async job is processed by the pod that accepted it.
+        # Jobs on a pod that dies are left PENDING/RUNNING (see CLAUDE.md, "Known limitations").
+        - name: spool
+          emptyDir:
+            sizeLimit: 5Gi
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CDR Ingestion Console</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<header class="top">
+  <h1>CDR ingestion console</h1>
+  <p>Send call detail record feeds, follow background jobs, and check a subscriber's usage.</p>
+</header>
+
+<main class="layout">
+  <section class="card" aria-labelledby="send-title">
+    <h2 id="send-title">Send a feed</h2>
+    <label for="feed">Feed file (NDJSON or JSON array)</label>
+    <input id="feed" type="file" accept=".ndjson,.json,.gz,application/json,application/x-ndjson">
+
+    <label for="source">Source (network element)</label>
+    <input id="source" value="MSC-01" maxlength="50">
+
+    <fieldset>
+      <legend>Processing</legend>
+      <label class="choice"><input type="radio" name="mode" value="stream" checked> Wait for the result (stream)</label>
+      <label class="choice"><input type="radio" name="mode" value="async"> Run in the background (async job)</label>
+    </fieldset>
+
+    <label class="choice"><input id="compress" type="checkbox" checked> Compress in the browser before sending (gzip)</label>
+
+    <button id="send" class="primary" type="button" disabled>Send feed</button>
+    <div class="meter" hidden id="meter"><div id="meter-bar"></div></div>
+    <p id="send-status" class="status" role="status" aria-live="polite"></p>
+    <dl id="summary" class="summary" hidden></dl>
+    <ul id="errors" class="errors"></ul>
+  </section>
+
+  <section class="card" aria-labelledby="jobs-title">
+    <div class="row-between">
+      <h2 id="jobs-title">Background jobs</h2>
+      <button id="refresh" class="ghost" type="button">Refresh</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Started</th><th>Source</th><th>Status</th><th class="num">Accepted</th><th class="num">Rejected</th></tr></thead>
+        <tbody id="jobs"><tr><td colspan="5" class="muted">No jobs yet.</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card wide" aria-labelledby="usage-title">
+    <h2 id="usage-title">Subscriber usage</h2>
+    <div class="row">
+      <div><label for="msisdn">Mobile number</label><input id="msisdn" inputmode="numeric" maxlength="10" placeholder="9876543210"></div>
+      <div><label for="from">From</label><input id="from" type="date"></div>
+      <div><label for="to">To</label><input id="to" type="date"></div>
+      <button id="usage" class="primary" type="button">Show usage</button>
+    </div>
+    <p id="usage-status" class="status" role="status" aria-live="polite"></p>
+    <div id="usage-result" class="tiles" hidden>
+      <div><span id="u-voice">0</span><small>voice calls</small></div>
+      <div><span id="u-minutes">0</span><small>voice minutes</small></div>
+      <div><span id="u-sms">0</span><small>SMS</small></div>
+      <div><span id="u-data">0</span><small>data</small></div>
+      <div><span id="u-charge">0</span><small>charges</small></div>
+    </div>
+  </section>
+</main>
+
+<script src="/js/app.js"></script>
+</body>
+</html>

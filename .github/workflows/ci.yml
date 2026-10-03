@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest   # Docker is available, so the MySQL Testcontainers IT runs too
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Unit + integration tests
+        run: mvn -B clean verify
+
+      - name: Upload test & coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            target/surefire-reports
+            target/failsafe-reports
+            target/site/jacoco
+
+      - name: Build Docker image
+        run: docker build -t telecom-cdr-service:${{ github.sha }} .
+
+      - name: Validate Kubernetes manifests
+        run: kubectl kustomize k8s/ > /dev/null
+
+      - name: Generator sanity check
+        run: python3 scripts/gen_cdrs.py 100 --format batch | python3 -m json.tool > /dev/null

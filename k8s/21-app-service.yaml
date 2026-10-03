@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: telecom-cdr-service
+  namespace: telecom-cdr
+spec:
+  selector:
+    app: telecom-cdr-service
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

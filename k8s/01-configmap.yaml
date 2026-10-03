@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: telecom-cdr-config
+  namespace: telecom-cdr
+data:
+  SPRING_PROFILES_ACTIVE: "prod"
+  DB_HOST: "mysql"
+  DB_PORT: "3306"
+  DB_NAME: "telecomdb"
+  DB_POOL_SIZE: "20"
+  TELECOM_SPOOL_DIRECTORY: "/app/data/spool"
+  TELECOM_PAYLOAD_DEFAULT_MAX_REQUEST_SIZE: "10MB"
+  TELECOM_PAYLOAD_STREAMING_MAX_REQUEST_SIZE: "500MB"
+  TELECOM_PAYLOAD_MAX_DECOMPRESSED_SIZE: "2GB"
+  TELECOM_PAYLOAD_CHUNK_SIZE: "1000"
+  TELECOM_PAYLOAD_ASYNC_WORKERS: "2"
+  JAVA_OPTS: "-XX:MaxRAMPercentage=75 -XX:+ExitOnOutOfMemoryError -Duser.timezone=UTC -Djava.io.tmpdir=/app/tmp"
